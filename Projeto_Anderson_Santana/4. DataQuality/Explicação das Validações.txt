@@ -1,0 +1,17 @@
+Explicação das Validações (Data Quality)
+
+O script implementa uma camada de validação que utiliza uma lógica de Audit Trail para segregar registros íntegros de registros inconsistentes, garantindo que apenas dados de alta qualidade avancem para a camada Gold.
+
+Detalhamento das Regras de Validação:
+
+cod_cliente (Nulidade): Valida a obrigatoriedade da chave primária. Registros sem identificação são bloqueados, pois impedem a rastreabilidade no sistema.
+
+nm_cliente (Nulidade): Garante a presença do nome, essencial para a identificação básica do cadastro.
+
+dt_nascimento_cliente (Formato/Data): Verifica se o valor é uma data válida. Caso o Spark falhe ao converter o formato, o registro é marcado como inválido, evitando erros em cálculos de idade futuros.
+
+num_telefone_cliente (Nulidade): Garante a presença de um contato. Note que, além desta validação de nulidade, a formatação já foi pré-tratada no script de ETL via Regex.
+
+vl_renda (Tipo Numérico): Força o cast para double. Se o valor não for numérico, o registro é retido, protegendo modelos analíticos e cálculos financeiros contra erros de casting.
+
+tp_pessoa (Domínio/Categorias): Valida se o conteúdo pertence ao conjunto permitido ("PF" ou "PJ"). Isso impede que dados de categorias não previstas corrompam as segmentações de negócio.

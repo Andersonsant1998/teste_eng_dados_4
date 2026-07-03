@@ -1,0 +1,7 @@
+Contexto de Desenvolvimento:
+
+O desenvolvimento deste pipeline foi realizado inteiramente no ambiente Google Colab. Para garantir a execução local e a validação imediata dos processos de ETL, os caminhos definidos no script (ex: output/bucket-bronze/ e output/bucket-silver/) referem-se a diretórios locais no sistema de arquivos do ambiente de execução.
+
+Esta abordagem foi adotada seguindo o princípio de separação de preocupações: a lógica de transformação é totalmente independente da camada de persistência. O uso do file system local do Google Colab permitiu garantir a agilidade no desenvolvimento e a reprodutibilidade dos testes unitários sem a necessidade de configurar camadas adicionais de acesso a nuvem nesta etapa inicial.
+
+Para migração ao ambiente de produção na AWS, a infraestrutura já está preparada (via Terraform), bastando alterar a configuração das variáveis de caminho para as URIs correspondentes do Amazon S3 (s3://...). O código está estruturado para que essa transição seja transparente, sem a necessidade de modificar a lógica de transformação ou os critérios de qualidade dos dados.

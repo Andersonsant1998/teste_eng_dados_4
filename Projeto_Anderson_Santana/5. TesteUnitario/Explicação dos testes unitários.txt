@@ -1,0 +1,19 @@
+Explicação dos testes unitários
+
+A robustez deste projeto é sustentada pelo desacoplamento da lógica de negócio. A função validar_cliente foi desenhada para ser independente do framework Spark, permitindo que o processamento seja validado sem a necessidade de inicializar um cluster, o que torna a suíte de testes extremamente rápida e eficiente.
+
+Conexão entre Desenvolvimento e Testes
+
+Encapsulamento: A função validar_cliente opera sobre um dicionário Python (asDict()), transformando um objeto complexo do Spark (Row) em uma estrutura simples e nativa. Isso possibilita que os testes unitários via pytest simulem exatamente o que acontece em produção, bastando passar um dicionário Python como argumento.
+
+Estratégia de Testes:
+
+Happy Path: Testamos registros completos com dados íntegros para garantir que a função retorne "OK".
+
+Casos de Borda: Validamos limites críticos, como números de telefone com exatamente 10 ou 11 dígitos, e valores de renda próximos a zero.
+
+Exceções e Falhas: Forçamos erros de tipagem (renda_nao_numerica), domínios inválidos (tp_pessoa fora de "PF/PJ") e ausência de campos obrigatórios (cod_cliente nulo) para confirmar que o sistema classifica corretamente cada falha de negócio.
+
+Integração com o Pipeline de Dados
+
+A UDF (validador_udf) atua como a ponte entre a lógica de negócio testada e a escala distribuída do Spark. Ao integrar essa função ao pipeline, garantimos que 100% dos registros que passam pela validação foram submetidos aos cenários de teste definidos, blindando a camada Gold contra dados inconsistentes e erros de tipagem que poderiam comprometer futuras análises.

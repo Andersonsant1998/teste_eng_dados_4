@@ -1,0 +1,36 @@
+Para este cenário de engenharia de dados, proponho uma arquitetura orientada a eventos utilizando Change Data Capture (CDC) para garantir a ingestão contínua e eficiente.
+
+Arquitetura Proposta:
+
+1. Ingestão (CDC):
+AWS Database Migration Service (DMS): Configuraremos uma tarefa de replicação contínua (Full Load + CDC) conectada ao seu banco MySQL. O DMS lerá os logs binários (binlogs) do MySQL e capturará todas as alterações (inserts, updates, deletes) em tempo real, enviando os dados para um bucket S3.
+
+
+2. Camadas do Data Lake (Arquitetura Medalhão):
+Utilizaremos o AWS Glue como motor de processamento para transformar os dados através das camadas:
+
+Camada Bronze (Raw): Os dados brutos do DMS são armazenados no formato original (ou JSON/Parquet) no S3. Esta camada serve como fonte imutável e não possui transformações.
+
+Camada Silver (Cleansed/Conformed): O AWS Glue ETL ou Glue Streaming consome da Bronze, realizando a limpeza (tratamento de datas e tipos de dados), desduplicação e normalização dos esquemas. Os dados são persistidos em formato Apache Iceberg ou Delta Lake para permitir operações ACID e melhor performance.
+
+Camada Gold (Curated/Business): O AWS Glue processa os dados da Silver para criar visões de negócio. Aqui aplicamos agregações, joins com outras fontes e estruturação voltada para consumo de Analytics e BI (ex: visões por país ou perfil de cliente).
+
+
+3. Governança de Acesso
+A governança será centralizada para garantir a segurança dos dados:
+
+AWS Lake Formation: Este é o componente central para a governança. Ele permite definir permissões granulares no nível de banco de dados, tabela, coluna ou até mesmo linha.
+
+Integração com IAM: O Lake Formation utiliza políticas do AWS IAM para controlar quem (usuários ou roles) tem permissão para acessar os dados processados no S3.
+
+Amazon Athena: Usuários de negócio e analistas utilizarão o Athena para consultar as tabelas (especialmente a camada Gold). O Athena respeita as regras de acesso definidas no Lake Formation, garantindo que o usuário só veja o que ele tem permissão.
+
+
+Resumo do Fluxo:
+
+MySQL -> AWS DMS (CDC) -> S3 (Bronze).
+S3 (Bronze) -> AWS Glue -> S3 (Silver).
+S3 (Silver) -> AWS Glue -> S3 (Gold).
+AWS Lake Formation controla quem acessa o quê em cada camada.
+Amazon Athena consome as tabelas conforme permissões do Lake Formation.
+Essa arquitetura garante que você não apenas colete os dados, mas que mantenha o histórico (CDC), organize a qualidade da informação (Medalhão) e controle quem pode ver dados sensíveis (Governança).

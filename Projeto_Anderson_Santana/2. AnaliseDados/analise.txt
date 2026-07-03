@@ -1,0 +1,17 @@
+--- Top 5 clientes com mais atualizações ---
++-----------+------------------+
+|cod_cliente|total_atualizacoes|
++-----------+------------------+
+|        479|                 5|
+|        878|                 5|
+|        396|                 5|
+|        855|                 4|
+|        663|                 3|
++-----------+------------------+
+only showing top 5 rows
+--- Média de idade de todos os clientes ---
++----------+
+|avg(idade)|
++----------+
+|    51.142|
++----------+
